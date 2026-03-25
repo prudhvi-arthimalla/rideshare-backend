@@ -1,3 +1,4 @@
 rootProject.name = "rideshare-backend"
 
-include("services:user-service")
+include("user-service")
+project(":user-service").projectDir = file("services/user-service")
