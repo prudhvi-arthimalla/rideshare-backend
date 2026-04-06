@@ -1,6 +1,6 @@
 package com.rideshare.user.repository;
 
-import com.rideshare.user.web.UserRequestDto;
+import com.rideshare.user.web.dto.UserRequestDto;
 import jakarta.persistence.*;
 
 import java.time.Instant;

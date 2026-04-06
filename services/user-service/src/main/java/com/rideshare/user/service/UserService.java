@@ -2,7 +2,9 @@ package com.rideshare.user.service;
 
 import com.rideshare.user.repository.User;
 import com.rideshare.user.repository.UserRepository;
-import com.rideshare.user.web.UserRequestDto;
+import com.rideshare.user.web.dto.UserRequestDto;
+import com.rideshare.user.web.exception.UnableToLogin;
+import com.rideshare.user.web.exception.UserAlreadyExists;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,12 @@ public class UserService {
     }
 
     public User registerUser(UserRequestDto request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new UserAlreadyExists("email", request.getEmail());
+        }
+        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new UserAlreadyExists("phone number", request.getPhoneNumber());
+        }
         var passwordHash = passwordEncoder.encode(request.getPassword());
         User user = User.toUser(request, passwordHash);
         return userRepository.save(user);
@@ -29,19 +37,15 @@ public class UserService {
 
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(UnableToLogin::new);
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new UnableToLogin();
         }
         return jwtTokenProvider.getToken(user);
     }
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
-    }
-
-    public Optional<User> getUserByPhoneNumber(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber);
     }
 
 }
