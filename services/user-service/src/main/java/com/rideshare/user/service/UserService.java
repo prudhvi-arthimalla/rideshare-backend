@@ -12,11 +12,12 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-
+    private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, JwtTokenProvider jwtTokenProvider, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -27,10 +28,12 @@ public class UserService {
     }
 
     public String loginUser(String email, String password) {
-        User user = userRepository.findByEmail(email).orElseThrow();
-        if (user.getPasswordHash().matches(passwordEncoder.encode(password))){
-
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new RuntimeException("Invalid email or password");
         }
+        return jwtTokenProvider.getToken(user);
     }
 
     public Optional<User> getUserByEmail(String email) {
