@@ -1,4 +1,4 @@
-package com.rideshare.user.web;
+package com.rideshare.user.web.dto;
 
 import com.rideshare.user.repository.User.Role;
 import jakarta.validation.constraints.Email;
