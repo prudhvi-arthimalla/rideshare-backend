@@ -14,6 +14,7 @@ public class UserResponseDto {
     private String phoneNumber;
     private Role role;
     private Instant createdAt;
+    private Instant updatedAt;
 
     public Long getId() {
         return id;
@@ -43,6 +44,10 @@ public class UserResponseDto {
         return createdAt;
     }
 
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
     public static UserResponseDto fromUser(User user) {
         UserResponseDto dto = new UserResponseDto();
         dto.id = user.getId();
@@ -52,6 +57,7 @@ public class UserResponseDto {
         dto.phoneNumber = user.getPhoneNumber();
         dto.role = user.getRole();
         dto.createdAt = user.getCreatedAt();
+        dto.updatedAt = user.getUpdatedAt();
         return dto;
     }
 }

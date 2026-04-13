@@ -35,9 +35,18 @@ public class User {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(nullable = false)
+    private Instant updatedAt;
+
     @PrePersist
     private void onCreate() {
         createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    private void onUpdate() {
+        updatedAt = Instant.now();
     }
 
     public enum Role {
@@ -98,6 +107,10 @@ public class User {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
     public static User toUser(UserRequestDto userRequestDto, String passwordHash) {

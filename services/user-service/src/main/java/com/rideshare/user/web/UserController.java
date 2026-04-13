@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import com.rideshare.user.web.exception.UserNotFound;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.Map;
 
 @RestController
@@ -39,9 +40,9 @@ public class UserController {
         return Map.of("token", token);
     }
 
-    @Operation(summary = "Get user by email")
-    @GetMapping(value = "/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserResponseDto getByEmail(@PathVariable String email) {
+    @Operation(summary = "Get the currently authenticated user")
+    @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserResponseDto getMe(@AuthenticationPrincipal String email) {
         return userService.getUserByEmail(email)
                 .map(UserResponseDto::fromUser)
                 .orElseThrow(() -> new UserNotFound(email));
