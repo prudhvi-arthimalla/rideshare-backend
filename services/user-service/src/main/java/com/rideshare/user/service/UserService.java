@@ -1,5 +1,6 @@
 package com.rideshare.user.service;
 
+import com.rideshare.commons.security.JwtTokenProvider;
 import com.rideshare.user.repository.User;
 import com.rideshare.user.repository.UserRepository;
 import com.rideshare.user.web.dto.UserRequestDto;
@@ -41,11 +42,10 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new UnableToLogin();
         }
-        return jwtTokenProvider.getToken(user);
+        return jwtTokenProvider.getToken(user.getEmail(), user.getRole().name(), user.getId());
     }
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
-
 }
