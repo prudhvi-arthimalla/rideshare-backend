@@ -1,7 +1,7 @@
 package com.rideshare.user.web.dto;
 
-import com.rideshare.user.repository.User;
-import com.rideshare.user.repository.User.Role;
+import com.rideshare.user.domain.User;
+import com.rideshare.user.domain.User.Role;
 
 import java.time.Instant;
 

@@ -1,4 +1,4 @@
-package com.rideshare.user.config;
+package com.rideshare.order.config;
 
 import com.rideshare.commons.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/register", "/users/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )

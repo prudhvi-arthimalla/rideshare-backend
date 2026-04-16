@@ -1,12 +1,11 @@
 package com.rideshare.user.web.dto;
 
-import com.rideshare.user.repository.User.Role;
+import com.rideshare.user.domain.User.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.springframework.stereotype.Component;
 
 public class UserRequestDto {
 

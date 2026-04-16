@@ -1,6 +1,5 @@
-package com.rideshare.user.service;
+package com.rideshare.commons.security;
 
-import com.rideshare.user.repository.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -20,11 +19,11 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
     }
 
-    public String getToken(User user) {
+    public String getToken(String email, String role, Long id) {
         return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("role", user.getRole())
-                .claim("id", user.getId())
+                .subject(email)
+                .claim("role", role)
+                .claim("id", id)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key)
