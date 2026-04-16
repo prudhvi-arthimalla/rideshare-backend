@@ -1,7 +1,7 @@
 package com.rideshare.user.service;
 
 import com.rideshare.commons.security.JwtTokenProvider;
-import com.rideshare.user.repository.User;
+import com.rideshare.user.domain.User;
 import com.rideshare.user.repository.UserRepository;
 import com.rideshare.user.web.dto.UserRequestDto;
 import com.rideshare.user.web.exception.UnableToLogin;

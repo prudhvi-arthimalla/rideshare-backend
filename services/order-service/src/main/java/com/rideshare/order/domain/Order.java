@@ -1,5 +1,7 @@
 package com.rideshare.order.domain;
 
+import com.rideshare.order.web.dto.OrderRequest;
+import com.rideshare.order.web.dto.OrderResponse;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -96,4 +98,20 @@ public class Order {
     public void setDropOffLat(BigDecimal dropOffLat) { this.dropOffLat = dropOffLat; }
     public void setDropOffLng(BigDecimal dropOffLng) { this.dropOffLng = dropOffLng; }
     public void setCancellationReason(String cancellationReason) { this.cancellationReason = cancellationReason; }
+
+    public static Order fromTransferObject(OrderRequest request, Long riderId) {
+        Order order = new Order();
+        order.setRiderId(riderId);
+        order.setPickupLocation(request.getPickupLocation());
+        order.setDropOffLocation(request.getDropOffLocation());
+        order.setPickupLat(request.getPickupLat());
+        order.setPickupLng(request.getPickupLng());
+        order.setDropOffLat(request.getDropOffLat());
+        order.setDropOffLng(request.getDropOffLng());
+        return order;
+    }
+
+    public OrderResponse toTransferObject() {
+        return OrderResponse.fromOrder(this);
+    }
 }

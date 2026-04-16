@@ -3,9 +3,9 @@ package com.rideshare.order;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.rideshare")
 public class OrderServiceApplication {
-    static void main() {
-        SpringApplication.run(OrderServiceApplication.class);
+    public static void main(String[] args) {
+        SpringApplication.run(OrderServiceApplication.class, args);
     }
 }

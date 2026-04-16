@@ -1,4 +1,4 @@
-package com.rideshare.user.repository;
+package com.rideshare.user.domain;
 
 import com.rideshare.user.web.dto.UserRequestDto;
 import jakarta.persistence.*;

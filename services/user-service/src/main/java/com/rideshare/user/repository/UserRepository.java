@@ -1,5 +1,6 @@
 package com.rideshare.user.repository;
 
+import com.rideshare.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
