@@ -1,9 +1,9 @@
 package com.rideshare.user.service;
 
+import com.rideshare.commons.dto.user.UserRequestDto;
 import com.rideshare.commons.security.JwtTokenProvider;
 import com.rideshare.user.domain.User;
 import com.rideshare.user.repository.UserRepository;
-import com.rideshare.user.web.dto.UserRequestDto;
 import com.rideshare.user.web.exception.UnableToLogin;
 import com.rideshare.user.web.exception.UserAlreadyExists;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,8 +32,7 @@ public class UserService {
             throw new UserAlreadyExists("phone number", request.getPhoneNumber());
         }
         var passwordHash = passwordEncoder.encode(request.getPassword());
-        User user = User.toUser(request, passwordHash);
-        return userRepository.save(user);
+        return userRepository.save(User.fromTransferObject(request, passwordHash));
     }
 
     public String loginUser(String email, String password) {

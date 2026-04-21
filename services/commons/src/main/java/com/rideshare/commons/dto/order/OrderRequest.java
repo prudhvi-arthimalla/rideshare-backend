@@ -1,4 +1,4 @@
-package com.rideshare.order.web.dto;
+package com.rideshare.commons.dto.order;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

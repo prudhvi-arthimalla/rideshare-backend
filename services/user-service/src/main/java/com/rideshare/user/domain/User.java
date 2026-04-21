@@ -1,6 +1,9 @@
 package com.rideshare.user.domain;
 
-import com.rideshare.user.web.dto.UserRequestDto;
+import com.rideshare.commons.dto.user.UserRequestDto;
+import com.rideshare.commons.dto.user.UserResponseDto;
+import com.rideshare.user.converter.EntityToTransferObjectConverter;
+import com.rideshare.user.converter.TransferObjectToEntityConverter;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -53,74 +56,34 @@ public class User {
         RIDER, DRIVER
     }
 
-    public Long getId() {
-        return id;
+    public Long getId() { return id; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
+
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+
+    public static User fromTransferObject(UserRequestDto dto, String passwordHash) {
+        return TransferObjectToEntityConverter.convert(dto, passwordHash);
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public static User toUser(UserRequestDto userRequestDto, String passwordHash) {
-        User user = new User();
-        user.setEmail(userRequestDto.getEmail());
-        user.setPasswordHash(passwordHash);
-        user.setFirstName(userRequestDto.getFirstName());
-        user.setLastName(userRequestDto.getLastName());
-        user.setPhoneNumber(userRequestDto.getPhoneNumber());
-        user.setRole(userRequestDto.getRole());
-        return user;
+    public UserResponseDto toTransferObject() {
+        return EntityToTransferObjectConverter.convert(this);
     }
 }

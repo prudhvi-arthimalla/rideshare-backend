@@ -1,4 +1,4 @@
-package com.rideshare.user.web.dto;
+package com.rideshare.commons.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

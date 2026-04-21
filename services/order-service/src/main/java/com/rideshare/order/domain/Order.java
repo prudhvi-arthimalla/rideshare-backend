@@ -1,7 +1,9 @@
 package com.rideshare.order.domain;
 
-import com.rideshare.order.web.dto.OrderRequest;
-import com.rideshare.order.web.dto.OrderResponse;
+import com.rideshare.commons.dto.order.OrderRequest;
+import com.rideshare.commons.dto.order.OrderResponse;
+import com.rideshare.order.converter.EntityToTransferObjectConverter;
+import com.rideshare.order.converter.TransferObjectToEntityConverter;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -19,7 +21,7 @@ public class Order {
     private Long riderId;
 
     @Column
-    private Long driverId;  // null until a driver accepts
+    private Long driverId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -65,14 +67,9 @@ public class Order {
     }
 
     public enum OrderStatus {
-        REQUESTED,
-        ACCEPTED,
-        IN_PROGRESS,
-        COMPLETED,
-        CANCELLED
+        REQUESTED, ACCEPTED, IN_PROGRESS, COMPLETED, CANCELLED
     }
 
-    // getters
     public Long getId() { return id; }
     public Long getRiderId() { return riderId; }
     public Long getDriverId() { return driverId; }
@@ -87,7 +84,6 @@ public class Order {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
-    // setters (no setId, no setCreatedAt — immutable)
     public void setRiderId(Long riderId) { this.riderId = riderId; }
     public void setDriverId(Long driverId) { this.driverId = driverId; }
     public void setStatus(OrderStatus status) { this.status = status; }
@@ -99,19 +95,11 @@ public class Order {
     public void setDropOffLng(BigDecimal dropOffLng) { this.dropOffLng = dropOffLng; }
     public void setCancellationReason(String cancellationReason) { this.cancellationReason = cancellationReason; }
 
-    public static Order fromTransferObject(OrderRequest request, Long riderId) {
-        Order order = new Order();
-        order.setRiderId(riderId);
-        order.setPickupLocation(request.getPickupLocation());
-        order.setDropOffLocation(request.getDropOffLocation());
-        order.setPickupLat(request.getPickupLat());
-        order.setPickupLng(request.getPickupLng());
-        order.setDropOffLat(request.getDropOffLat());
-        order.setDropOffLng(request.getDropOffLng());
-        return order;
+    public static Order fromTransferObject(OrderRequest dto, Long riderId) {
+        return TransferObjectToEntityConverter.convert(dto, riderId);
     }
 
     public OrderResponse toTransferObject() {
-        return OrderResponse.fromOrder(this);
+        return EntityToTransferObjectConverter.convert(this);
     }
 }
