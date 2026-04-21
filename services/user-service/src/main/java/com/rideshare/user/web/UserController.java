@@ -1,18 +1,18 @@
 package com.rideshare.user.web;
 
+import com.rideshare.commons.dto.user.LoginRequestDto;
+import com.rideshare.commons.dto.user.UserRequestDto;
+import com.rideshare.commons.dto.user.UserResponseDto;
 import com.rideshare.user.service.UserService;
-import com.rideshare.user.web.dto.LoginRequestDto;
-import com.rideshare.user.web.dto.UserRequestDto;
-import com.rideshare.user.web.dto.UserResponseDto;
+import com.rideshare.user.web.exception.UserNotFound;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.rideshare.user.web.exception.UserNotFound;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.Map;
 
 @RestController
@@ -30,11 +30,11 @@ public class UserController {
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDto register(@Valid @RequestBody UserRequestDto request) {
-        return UserResponseDto.fromUser(userService.registerUser(request));
+        return userService.registerUser(request).toTransferObject();
     }
 
     @Operation(summary = "Login and receive a JWT token")
-    @PostMapping(value = "/login", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, String> login(@Valid @RequestBody LoginRequestDto request) {
         String token = userService.loginUser(request.getEmail(), request.getPassword());
         return Map.of("token", token);
@@ -44,7 +44,7 @@ public class UserController {
     @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDto getMe(@AuthenticationPrincipal String email) {
         return userService.getUserByEmail(email)
-                .map(UserResponseDto::fromUser)
+                .map(user -> user.toTransferObject())
                 .orElseThrow(() -> new UserNotFound(email));
     }
 }
