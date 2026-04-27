@@ -2,6 +2,8 @@ package com.rideshare.order.service;
 
 import com.rideshare.commons.dto.order.CancelOrderRequest;
 import com.rideshare.commons.dto.order.OrderRequest;
+import com.rideshare.commons.kafka.events.OrderCancelledEvent;
+import com.rideshare.commons.kafka.events.OrderRequestedEvent;
 import com.rideshare.order.domain.Order;
 import com.rideshare.order.repository.OrderRepository;
 import com.rideshare.order.web.exception.OrderCannotBeCancelled;
@@ -19,15 +21,28 @@ public class OrderService {
             Set.of(Order.OrderStatus.REQUESTED, Order.OrderStatus.ACCEPTED);
 
     private final OrderRepository orderRepository;
+    private final EventPublisher eventPublisher;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, EventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
     public Order createOrder(OrderRequest request, Long riderId) {
-        Order entity = Order.fromTransferObject(request, riderId);
-        return orderRepository.save(entity);
+        Order savedOrder = orderRepository.save(Order.fromTransferObject(request, riderId));
+        eventPublisher.publishOrderRequested(OrderRequestedEvent.of(
+                savedOrder.getId(),
+                savedOrder.getRiderId(),
+                savedOrder.getPickupLocation(),
+                savedOrder.getDropOffLocation(),
+                savedOrder.getPickupLat(),
+                savedOrder.getPickupLng(),
+                savedOrder.getDropOffLat(),
+                savedOrder.getDropOffLng(),
+                savedOrder.getCreatedAt()
+        ));
+        return savedOrder;
     }
 
     @Transactional(readOnly = true)
@@ -57,6 +72,14 @@ public class OrderService {
         }
         order.setStatus(Order.OrderStatus.CANCELLED);
         order.setCancellationReason(request != null ? request.getReason() : null);
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        eventPublisher.publishOrderCancelled(OrderCancelledEvent.of(
+                savedOrder.getId(),
+                savedOrder.getRiderId(),
+                savedOrder.getDriverId(),
+                savedOrder.getCancellationReason(),
+                savedOrder.getUpdatedAt()
+        ));
+        return savedOrder;
     }
 }
