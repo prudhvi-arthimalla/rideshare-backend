@@ -2,6 +2,7 @@ package com.rideshare.order.domain;
 
 import com.rideshare.commons.dto.order.OrderRequest;
 import com.rideshare.commons.dto.order.OrderResponse;
+import com.rideshare.commons.dto.order.OrderStatus;
 import com.rideshare.order.converter.EntityToTransferObjectConverter;
 import com.rideshare.order.converter.TransferObjectToEntityConverter;
 import jakarta.persistence.*;
@@ -64,10 +65,6 @@ public class Order {
     @PreUpdate
     private void onUpdate() {
         updatedAt = Instant.now();
-    }
-
-    public enum OrderStatus {
-        REQUESTED, ACCEPTED, IN_PROGRESS, COMPLETED, CANCELLED
     }
 
     public Long getId() { return id; }

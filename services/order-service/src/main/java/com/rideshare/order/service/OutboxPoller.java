@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -43,10 +44,8 @@ public class OutboxPoller {
                 JsonNode payload = objectMapper.readTree(event.getPayload());
                 kafkaTemplate.send(event.getTopic(), event.getMessageKey(), payload).get();
                 event.markPublished();
-                log.info("Relayed outbox event id={} to topic={}", event.getId(), event.getTopic());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                log.error("Interrupted while relaying outbox event id={}", event.getId());
                 break;
             } catch (Exception e) {
                 log.error("Failed to relay outbox event id={} topic={}", event.getId(), event.getTopic(), e);
@@ -54,3 +53,4 @@ public class OutboxPoller {
         }
     }
 }
+
