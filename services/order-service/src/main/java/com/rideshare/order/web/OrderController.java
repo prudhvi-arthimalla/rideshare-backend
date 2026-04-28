@@ -8,6 +8,8 @@ import com.rideshare.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -21,7 +23,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
@@ -32,6 +34,7 @@ public class OrderController {
     public OrderResponse createOrder(@Valid @RequestBody OrderRequest request,
                                      Authentication authentication) {
         Long riderId = (Long) authentication.getDetails();
+        log.info("Received request to create order from user {}", riderId);
         return orderService.createOrder(request, riderId).toTransferObject();
     }
 
@@ -39,6 +42,7 @@ public class OrderController {
     @GetMapping(value = "/my-orders", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<OrderResponse> getMyOrders(Authentication authentication) {
         Long riderId = (Long) authentication.getDetails();
+        log.info("Received request to fetch all orders for user {}", riderId);
         return orderService.getMyOrders(riderId).stream()
                 .map(Order::toTransferObject)
                 .toList();
@@ -50,6 +54,7 @@ public class OrderController {
         Long callerId = (Long) authentication.getDetails();
         boolean isDriver = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_DRIVER"));
+        log.info("Received request to fetch order details by user {}", callerId);
         return orderService.getOrder(id, callerId, isDriver).toTransferObject();
     }
 
@@ -59,6 +64,8 @@ public class OrderController {
                                      @RequestBody(required = false) CancelOrderRequest request,
                                      Authentication authentication) {
         Long riderId = (Long) authentication.getDetails();
+        log.info("Received request to cancel order for user {}", riderId);
         return orderService.cancelOrder(id, riderId, request).toTransferObject();
     }
 }
+
