@@ -1,5 +1,8 @@
 rootProject.name = "rideshare-services"
 
-include("commons")
-include("user-service")
-include("order-service")
+include(
+    "commons",
+    "user-service",
+    "order-service",
+    "driver-service"
+)
