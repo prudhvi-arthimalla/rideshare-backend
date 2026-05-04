@@ -24,7 +24,7 @@ public class DriverService {
     }
 
     @Transactional
-    public Driver registerAvailability(Long userId) {
+    public void registerAvailability(Long userId) {
         Driver driver = driverRepository.findByUserId(userId)
                 .orElseGet(() -> {
                     log.info("No driver profile found for userId={}, creating one", userId);
@@ -34,10 +34,10 @@ public class DriverService {
                 });
         driver.setStatus(Driver.DriverStatus.AVAILABLE);
         log.info("Driver availability updated for user {} to {}", userId, driver.getStatus());
-        return driverRepository.save(driver);
+        driverRepository.save(driver);
     }
 
-    public DriverLocation updateLocation(Long userId, double lat, double lng) {
+    public void updateLocation(Long userId, double lat, double lng) {
         Driver driver = getDriverByUserId(userId);
 
         DriverLocation location = driverLocationRepository.findByDriverId(driver.getId())
@@ -47,7 +47,7 @@ public class DriverService {
                 })
                 .orElse(new DriverLocation(driver.getId(), lat, lng));
 
-        return driverLocationRepository.save(location);
+        driverLocationRepository.save(location);
     }
 
     @Transactional(readOnly = true)
