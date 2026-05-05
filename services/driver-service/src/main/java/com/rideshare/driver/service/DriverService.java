@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class DriverService {
 
@@ -54,5 +56,16 @@ public class DriverService {
     public Driver getDriverByUserId(Long userId) {
         return driverRepository.findByUserId(userId)
                 .orElseThrow(() -> new DriverNotFound(userId));
+    }
+
+    @Transactional
+    public Optional<Driver> getNextAvailableDriver() {
+        Optional<Driver> driverOpt = driverRepository.findFirstByStatusOrderByUpdatedAtAsc(Driver.DriverStatus.AVAILABLE);
+        driverOpt.ifPresent(driver -> {
+            driver.setStatus(Driver.DriverStatus.BUSY);
+            driverRepository.save(driver);
+            log.info("Driver {} marked as BUSY", driver.getId());
+        });
+        return driverOpt;
     }
 }

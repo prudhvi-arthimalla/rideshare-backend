@@ -68,6 +68,16 @@ public class OrderService {
     }
 
     @Transactional
+    public void acceptOrder(Long orderId, Long driverId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFound(orderId));
+        order.setDriverId(driverId);
+        order.setStatus(OrderStatus.ACCEPTED);
+        orderRepository.save(order);
+        log.info("Order {} accepted by driverId={}", orderId, driverId);
+    }
+
+    @Transactional
     public Order cancelOrder(Long orderId, Long riderId, CancelOrderRequest request) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFound(orderId));
