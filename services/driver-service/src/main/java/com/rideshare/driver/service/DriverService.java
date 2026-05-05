@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class DriverService {
 
@@ -24,7 +26,7 @@ public class DriverService {
     }
 
     @Transactional
-    public Driver registerAvailability(Long userId) {
+    public void registerAvailability(Long userId) {
         Driver driver = driverRepository.findByUserId(userId)
                 .orElseGet(() -> {
                     log.info("No driver profile found for userId={}, creating one", userId);
@@ -34,10 +36,10 @@ public class DriverService {
                 });
         driver.setStatus(Driver.DriverStatus.AVAILABLE);
         log.info("Driver availability updated for user {} to {}", userId, driver.getStatus());
-        return driverRepository.save(driver);
+        driverRepository.save(driver);
     }
 
-    public DriverLocation updateLocation(Long userId, double lat, double lng) {
+    public void updateLocation(Long userId, double lat, double lng) {
         Driver driver = getDriverByUserId(userId);
 
         DriverLocation location = driverLocationRepository.findByDriverId(driver.getId())
@@ -47,12 +49,23 @@ public class DriverService {
                 })
                 .orElse(new DriverLocation(driver.getId(), lat, lng));
 
-        return driverLocationRepository.save(location);
+        driverLocationRepository.save(location);
     }
 
     @Transactional(readOnly = true)
     public Driver getDriverByUserId(Long userId) {
         return driverRepository.findByUserId(userId)
                 .orElseThrow(() -> new DriverNotFound(userId));
+    }
+
+    @Transactional
+    public Optional<Driver> getNextAvailableDriver() {
+        Optional<Driver> driverOpt = driverRepository.findFirstByStatusOrderByUpdatedAtAsc(Driver.DriverStatus.AVAILABLE);
+        driverOpt.ifPresent(driver -> {
+            driver.setStatus(Driver.DriverStatus.BUSY);
+            driverRepository.save(driver);
+            log.info("Driver {} marked as BUSY", driver.getId());
+        });
+        return driverOpt;
     }
 }

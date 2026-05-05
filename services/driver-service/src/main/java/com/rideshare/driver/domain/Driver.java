@@ -1,5 +1,6 @@
 package com.rideshare.driver.domain;
 
+import com.rideshare.commons.dto.driver.DriverResponse;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -49,4 +50,14 @@ public class Driver {
 
     public void setUserId(Long userId) { this.userId = userId; }
     public void setStatus(DriverStatus status) { this.status = status; }
+
+    public DriverResponse toTransferObject() {
+        DriverResponse response = new DriverResponse();
+        response.setId(id);
+        response.setUserId(userId);
+        response.setStatus(status.name());
+        response.setCreatedAt(createdAt);
+        response.setUpdatedAt(updatedAt);
+        return response;
+    }
 }
