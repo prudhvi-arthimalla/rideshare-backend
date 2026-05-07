@@ -71,6 +71,10 @@ public class OrderService {
     public void acceptOrder(Long orderId, Long driverId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFound(orderId));
+        if (order.getStatus() != OrderStatus.REQUESTED) {
+            log.warn("Order {} has already been accepted, current status is {}", orderId, order.getStatus());
+            return;
+        }
         order.setDriverId(driverId);
         order.setStatus(OrderStatus.ACCEPTED);
         orderRepository.save(order);
