@@ -24,7 +24,12 @@ public class DriverEventPublisher {
 
     public void publishOrderAccepted(Long orderId, Long driverId) {
         OrderAcceptedEvent event = OrderAcceptedEvent.of(orderId, driverId, Instant.now());
-        driverKafkaTemplate.send(Topics.ORDER_ACCEPTED, String.valueOf(orderId), event);
+        driverKafkaTemplate.send(Topics.ORDER_ACCEPTED, String.valueOf(orderId), event)
+                .whenComplete((result, error) -> {
+                    if (error != null) {
+                        log.error("Error publishing order accepted event for driver {}", driverId, error);
+                    }
+                });
         log.info("Published order.accepted event for orderId={}, driverId={}", orderId, driverId);
     }
 }

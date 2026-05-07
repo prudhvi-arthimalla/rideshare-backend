@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = "com.rideshare")
-@EnableScheduling
 public class DriverServiceApplication implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DriverServiceApplication.class);
