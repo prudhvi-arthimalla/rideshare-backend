@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: user-service
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -10,6 +12,21 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTLP_ENDPOINT:http://localhost:4318}/v1/traces
 
 jwt:
   secret: ${JWT_SECRET}

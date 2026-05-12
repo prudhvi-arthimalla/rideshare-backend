@@ -2,6 +2,8 @@ server:
   port: 8082
 
 spring:
+  application:
+    name: driver-service
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -24,6 +26,21 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTLP_ENDPOINT:http://localhost:4318}/v1/traces
 
 jwt:
   secret: ${JWT_SECRET}
