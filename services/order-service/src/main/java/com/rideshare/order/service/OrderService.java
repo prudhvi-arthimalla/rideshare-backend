@@ -9,6 +9,8 @@ import com.rideshare.order.domain.Order;
 import com.rideshare.order.repository.OrderRepository;
 import com.rideshare.order.web.exception.OrderCannotBeCancelled;
 import com.rideshare.order.web.exception.OrderNotFound;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,15 +29,34 @@ public class OrderService {
     private final EventPublisher eventPublisher;
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
-    public OrderService(OrderRepository orderRepository, EventPublisher eventPublisher) {
+    private final Counter ordersCreated;
+    private final Counter ordersAccepted;
+    private final Counter ordersCancelled;
+
+    public OrderService(OrderRepository orderRepository,
+                        EventPublisher eventPublisher,
+                        MeterRegistry meterRegistry) {
         this.orderRepository = orderRepository;
         this.eventPublisher = eventPublisher;
+
+        this.ordersCreated = Counter.builder("rideshare.orders.created.total")
+                .description("Total number of orders created")
+                .register(meterRegistry);
+
+        this.ordersAccepted = Counter.builder("rideshare.orders.accepted.total")
+                .description("Total number of orders accepted by a driver")
+                .register(meterRegistry);
+
+        this.ordersCancelled = Counter.builder("rideshare.orders.cancelled.total")
+                .description("Total number of orders cancelled")
+                .register(meterRegistry);
     }
 
     @Transactional
     public Order createOrder(OrderRequest request, Long riderId) {
         Order savedOrder = orderRepository.save(Order.fromTransferObject(request, riderId));
         log.info("Order created for user {}, orderId: {}", riderId, savedOrder.getId());
+        ordersCreated.increment();
         eventPublisher.publishOrderRequested(OrderRequestedEvent.of(
                 savedOrder.getId(),
                 savedOrder.getRiderId(),
@@ -78,6 +99,7 @@ public class OrderService {
         order.setDriverId(driverId);
         order.setStatus(OrderStatus.ACCEPTED);
         orderRepository.save(order);
+        ordersAccepted.increment();
         log.info("Order {} accepted by driverId={}", orderId, driverId);
     }
 
@@ -96,6 +118,7 @@ public class OrderService {
         order.setStatus(OrderStatus.CANCELLED);
         order.setCancellationReason(request != null ? request.getReason() : null);
         Order savedOrder = orderRepository.save(order);
+        ordersCancelled.increment();
         log.info("Order cancelled for user {}, orderId: {}", riderId, savedOrder.getId());
         eventPublisher.publishOrderCancelled(OrderCancelledEvent.of(
                 savedOrder.getId(),
