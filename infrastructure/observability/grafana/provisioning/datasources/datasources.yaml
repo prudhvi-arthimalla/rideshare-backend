@@ -21,7 +21,26 @@ datasources:
         tags:
           - key: service.name
             value: application
+      tracesToLogsV2:
+        datasourceUid: loki
+        filterByTraceID: true
+        filterBySpanID: false
+        tags:
+          - key: service.name
+            value: service
       serviceMap:
         datasourceUid: prometheus
       nodeGraph:
         enabled: true
+
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: '"traceId":"([a-f0-9]+)"'
+          name: traceId
+          url: '$${__value.raw}'

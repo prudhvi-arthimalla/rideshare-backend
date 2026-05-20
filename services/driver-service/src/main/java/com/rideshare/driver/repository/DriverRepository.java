@@ -13,8 +13,8 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
 
     Optional<Driver> findByUserId(Long userId);
 
-    boolean existsByUserId(Long userId);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Driver> findFirstByStatusOrderByUpdatedAtAsc(Driver.DriverStatus status);
+
+    long countByStatus(Driver.DriverStatus status);
 }

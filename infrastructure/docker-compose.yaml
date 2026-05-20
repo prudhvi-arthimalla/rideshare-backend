@@ -72,6 +72,26 @@ services:
       timeout: 10s
       retries: 5
 
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: rideshare-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki.yaml
+    volumes:
+      - ./observability/loki.yaml:/etc/loki/loki.yaml
+      - loki_data:/loki
+
+  promtail:
+    image: grafana/promtail:3.4.2
+    container_name: rideshare-promtail
+    volumes:
+      - ./observability/promtail.yaml:/etc/promtail/promtail.yaml
+      - /tmp/rideshare-logs:/var/log/rideshare:ro
+    command: -config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - loki
+
   prometheus:
     image: prom/prometheus:v2.53.0
     container_name: rideshare-prometheus
@@ -108,10 +128,12 @@ services:
     depends_on:
       - prometheus
       - tempo
+      - loki
 
 volumes:
   postgres_data:
   redis_data:
   mongodb_data:
+  loki_data:
   tempo_data:
   grafana_data:
