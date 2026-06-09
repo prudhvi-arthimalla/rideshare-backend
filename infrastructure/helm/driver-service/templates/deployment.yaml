@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: driver-service
+  labels:
+    app: driver-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: driver-service
+  template:
+    metadata:
+      labels:
+        app: driver-service
+    spec:
+      containers:
+        - name: driver-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8082
+          env:
+            - name: DB_URL
+              value: {{ .Values.env.DB_URL }}
+            - name: DB_USERNAME
+              value: {{ .Values.env.DB_USERNAME }}
+            - name: MONGO_DATABASE
+              value: {{ .Values.env.MONGO_DATABASE }}
+            - name: OTLP_ENDPOINT
+              value: {{ .Values.env.OTLP_ENDPOINT }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rideshare-secrets
+                  key: db-password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: rideshare-secrets
+                  key: jwt-secret
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                secretKeyRef:
+                  name: rideshare-secrets
+                  key: msk-brokers
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: rideshare-secrets
+                  key: mongo-uri
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
