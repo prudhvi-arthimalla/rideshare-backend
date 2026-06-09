@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  repository: 519046118695.dkr.ecr.ca-central-1.amazonaws.com/rideshare/driver-service
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8082
+
+env:
+  DB_URL: jdbc:postgresql://rideshare-postgres.cn64igu409in.ca-central-1.rds.amazonaws.com:5432/rideshare_drivers
+  DB_USERNAME: postgres
+  MONGO_DATABASE: rideshare_drivers
+  OTLP_ENDPOINT: http://localhost:4318
